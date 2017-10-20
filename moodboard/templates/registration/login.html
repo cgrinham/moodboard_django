@@ -1,0 +1,16 @@
+{% extends "moodboard/base.html" %}
+
+{% block content %}
+<div id="loginform">
+  {% if form.errors %}
+    <p class="error">Sorry, that's not a valid username or password</p>
+  {% endif %}
+
+  <form action="" method="post">{% csrf_token %}
+    <input type="text" name="username" value="" id="username" placeholder="username"><br>
+    <input type="password" name="password" value="" id="password" placeholder="password"><br>
+
+    <input type="submit" value="login" />
+  </form>
+</div>
+{% endblock %}

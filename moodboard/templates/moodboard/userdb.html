@@ -1,0 +1,26 @@
+{% extends "moodboard/base.html" %}
+{% load staticfiles %}
+
+{% block browsertitle %} {{username}}{% endblock %}
+{% block pagetitle %} {{numberofimages}} {{newtag}} images{% endblock %}
+
+{% block content %}
+
+{% if dirlist %}
+<div id="navbox">
+    <ul id="pages">
+        {% for dir in dirlist %}
+            <li id="id-{dir}"><a href="{% if not isdir %}{{username}}/{% endif %}{{dir}}">{{dir}}</a></li>
+        {% endfor %}
+    </ul>
+</div> 
+{% endif %}
+
+{% for image in imagelist %}
+	<div class="imagetile"><a href="{% static 'moodboard' %}/users/{{user.id}}/images/{{image.filename}}"><img class="mb-image" src="{% static 'moodboard' %}/users/{{user.id}}/images/{{image.filename}}" alt="{{image.filename}}"></a><br><div class="tags">{% for tag in image.tags.all %} {{tag.name}} {% endfor %}</div></div>
+
+{% endfor %}
+
+{{newtag}}
+
+{% endblock %}
