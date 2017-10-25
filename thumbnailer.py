@@ -65,42 +65,68 @@ def make_thumbnail(cur_process, folder, thumbdir, image):
         pass
 
 
-def make_thumbnails(cur_process, folder):
-    """ crawl folders for thumbnails to make """
-    print "%s - %s: Current Directory is %s" % (cur_process, get_logtime(), folder)
-    #thumbdir = os.path.join(folder, ".moodthumbs")
-    thumbdir = "/var/www/moodboard/moodboard/static/moodboard/users/inpala/thumbs"
+def make_thumbnails(cur_process, userpath, board=None):
+    """ crawl userpaths for thumbnails to make """
+    if board is None:
+        print "%s - %s: Current Directory is %s" % (cur_process, get_logtime(), userpath)
+        thumbdir = os.path.join(userpath, "thumbs")
 
-    if not os.path.isdir(thumbdir): # check if thumbdir exists
-        os.mkdir(thumbdir) # make thumbdir
-        print "%s - %s: Thumbnail directory created at %s" % (cur_process, get_logtime(), thumbdir)
+        if not os.path.isdir(thumbdir):  # check if thumbdir exists
+            os.mkdir(thumbdir)  # make thumbdir
+            print "%s - %s: Thumbnail directory created at %s" % (
+                cur_process, get_logtime(), thumbdir)
+        else:
+            pass
+        imagepath = os.path.join(userpath, "images")
     else:
-        pass
+        print board
+        thumbdir = os.path.join(userpath, "thumbs", board)
 
-    cur_image_list = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)) and f.endswith(('.jpg', '.jpeg', '.png')) and not f.startswith('.')]
+        if not os.path.isdir(thumbdir):  # check if thumbdir exists
+            os.mkdir(thumbdir)  # make thumbdir
+            print "%s - %s: Thumbnail directory created at %s" % (
+                cur_process, get_logtime(), thumbdir)
+        else:
+            pass
+        imagepath = os.path.join(userpath, "images", board)
+
+    cur_image_list = [f for f in os.listdir(imagepath) if os.path.isfile(os.path.join(imagepath, f)) and f.endswith(('.jpg', '.jpeg', '.png')) and not f.startswith('.')]
 
     for image in cur_image_list:
-        make_thumbnail(cur_process, folder, thumbdir, image)
+        make_thumbnail(cur_process, imagepath, thumbdir, image)
+
+
 
 def thumbnailcrawler():
     """ Crawl for images without thumbnails? """
     while True:
-        userfolderlist = [f for f in os.listdir(USERSFOLDER) if os.path.isdir(os.path.join(USERSFOLDER, f)) == True and f not in ("thumbs", "css", "js", "img")]
+        # Get list of all user directories
+        user_directories = [f for f in os.listdir(users_dir) if os.path.isdir(
+            os.path.join(users_dir, f)) is True and f not in ("thumbs", "css", "js", "img")]
 
-        for folder in userfolderlist:
-            abs_folder = os.path.join(USERSFOLDER, folder, "images")
+        for user in user_directories:
+            absolute_user_path = os.path.join(users_dir, user)
 
-            make_thumbnails("Thumbnail Crawler", abs_folder)
+            # Make thumbnails for all the root directory images
+            make_thumbnails("Thumbnail Crawler", absolute_user_path)
 
-            subfolderlist = [f for f in os.listdir(abs_folder) if os.path.isdir(os.path.join(abs_folder, f)) == True and f not in ("thumbs", "css", "js", "img")]
+            # Get a list of the user's directories ("boards")
+            user_board_list = [f for f in os.listdir(
+                os.path.join(absolute_user_path, "images")
+                ) if os.path.isdir(os.path.join(
+                    absolute_user_path, "images", f)
+                ) is True and f not in ("thumbs", "css", "js", "img")]
 
-            print "%s - Thumbnail Crawler: Subfolders in %s are: %s" % (get_logtime(), abs_folder, subfolderlist)
+            print "%s - Thumbnail Crawler: Boards in %s are: %s" % (
+                get_logtime(), absolute_user_path, user_board_list)
 
-            for subfolder in subfolderlist:
-                make_thumbnails("Thumbnail Crawler", os.path.join(abs_folder, subfolder))
+            # Make thumbnails for images in boards
+            for board in user_board_list:
+                make_thumbnails("Thumbnail Crawler", absolute_user_path, board)
 
         # Sleep for two minutes
         time.sleep(120)
+
 
 if __name__ == "__main__":
 
@@ -108,7 +134,7 @@ if __name__ == "__main__":
 
     HEIGHT = 350
     DATABASE = 'moodboard.db'
-    USERSFOLDER = "/var/www/moodboard/moodboard/static/moodboard/users"
+    users_dir = ""
     THUMBNAILQ = multiprocessing.Queue()
 
     if thumbnailcrawlerswitch == 1:
