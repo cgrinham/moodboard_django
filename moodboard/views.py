@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from moodboard import settings # See how we're not importing project's settings
 
 
-MOODBOARD_USERS = '/home/christie/Sync/Programming/Python/Projects/moodboard_django/moodboard/static/moodboard/users/'
+MOODBOARD_USERS = '/home/cgrinham/syncthing/projects/moodboard_django/moodboard/static/moodboard/users/'
 
 
 def list_files(cur_foldername, reverse=True):
@@ -25,7 +25,7 @@ def list_files(cur_foldername, reverse=True):
         f = f.decode("utf8")
         if os.path.isfile(os.path.join(cur_foldername, f)) and f.endswith(('.jpg', '.jpeg', '.png')):
             output.append(f)
-    
+
     # output = [f for f in os.listdir(cur_foldername) if os.path.isfile(os.path.join(cur_foldername, f)) and f.endswith(('.jpg', '.jpeg', '.png'))]
 
     if reverse is True:
@@ -64,7 +64,7 @@ def index(request):
         else:
             pass
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         loggedin = False
     else:
         loggedin = True
@@ -93,7 +93,7 @@ def user(request, username, directory=""):
     # paginate the image list
     paginator = Paginator(imagelist, 20)
 
-    # get page number from url ?page= 
+    # get page number from url ?page=
     page = request.GET.get('page')
     try:
         pagedlist = paginator.page(page)

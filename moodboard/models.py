@@ -10,7 +10,7 @@ class Tag(models.Model):
 
 
 class UserImage(models.Model):
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=100)
     directory = models.CharField(max_length=100, blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
